@@ -1,4 +1,3 @@
-import * as Yup from 'yup'; // para validacao
 import { startOfHour, parseISO, isBefore, format, subHours } from 'date-fns'; // para datas
 import pt from 'date-fns/locale/pt'; // Formata data para Portugues (tem pt-br)
 import User from '../models/User';
@@ -57,15 +56,6 @@ class AppointmentController {
 
   // cadastra agendamentos
   async store(req, res) {
-    const schema = Yup.object().shape({
-      provider_id: Yup.number().required(),
-      date: Yup.date().required(),
-    });
-
-    if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ error: 'Falha na validacao dos dados' });
-    }
-
     const { provider_id, date } = req.body;
 
     // verifica se o usuario tenat agendar com ele mesmo

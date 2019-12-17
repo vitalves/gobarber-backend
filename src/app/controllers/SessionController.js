@@ -1,8 +1,6 @@
 // CRIANDO UMA SESSAO (NOVA ENTIDADE)
 // importa o JWT
 import jwt from 'jsonwebtoken';
-// importa Yup para validacao de email e senha
-import * as Yup from 'yup';
 
 // importa o usuario que vai logar
 import User from '../models/User';
@@ -13,19 +11,6 @@ import authConfig from '../../config/auth';
 
 class SessionController {
   async store(req, res) {
-    // validacoes com Yup (schema validation)
-    const schema = Yup.object().shape({
-      email: Yup.string()
-        .email()
-        .required(),
-      password: Yup.string().required(),
-    });
-
-    if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ error: 'Falha da validacao' });
-    }
-    // FIM // validacoes com Yup (schema validation)
-
     // pega os dados do body da requisicao
     const { email, password } = req.body;
 

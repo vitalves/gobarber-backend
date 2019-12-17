@@ -1,5 +1,5 @@
 // YUP biblioteca para validadacao de dados
-import * as Yup from 'yup'; // Yup se importação default (importa-se tudo)
+// import * as Yup from 'yup'; // Yup se importação default (importa-se tudo)
 // importa o model de usuario
 import User from '../models/User';
 // importa o model de File para pegar o Avatar
@@ -7,23 +7,6 @@ import File from '../models/File';
 
 class UserController {
   async store(req, res) {
-    // validacoes com Yup (schema validation)
-    const schema = Yup.object().shape({
-      name: Yup.string().required(),
-      email: Yup.string()
-        .email()
-        .required(),
-      password: Yup.string()
-        .required()
-        .min(6)
-        .max(30),
-    });
-
-    if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ error: 'Falha da validacao' });
-    }
-    // FIM // validacoes com Yup (schema validation)
-
     // verifica se o usuario ja existe
     const userExists = await User.findOne({ where: { email: req.body.email } });
 
@@ -51,29 +34,6 @@ class UserController {
 
   // alteracores de cadastro do usuario logado
   async update(req, res) {
-    // console.log(req.userId); // userId gerado dentro do middleware auth
-
-    // validacoes com Yup (schema validation)
-    const schema = Yup.object().shape({
-      name: Yup.string(),
-      email: Yup.string().email(),
-      oldPassword: Yup.string().min(6),
-      password: Yup.string()
-        .min(6)
-        .when('oldPassword', (oldPassword, fild) =>
-          oldPassword ? fild.required() : fild
-        ), // WHEN = validacao condicional
-      // o valor da senha de confirmacao deve ser igual ao campo senha
-      confirmPassword: Yup.string().when('password', (password, fild) =>
-        password ? fild.required().oneOf([Yup.ref('password')]) : fild
-      ),
-    });
-
-    if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ error: 'Falha da validacao' });
-    }
-    // FIM // validacoes com Yup (schema validation)
-
     // atualizar dados do usuario
     const { email, oldPassword } = req.body;
 
