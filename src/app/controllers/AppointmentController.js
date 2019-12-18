@@ -5,14 +5,25 @@ import Appointment from '../models/Appointment';
 import CreateAppointmentService from '../services/CreateAppointmentService';
 import CancelAppointmentService from '../services/CancelAppointmentService';
 
+import Cache from '../../lib/Cache';
+
 class AppointmentController {
   // Lista agendamentos
   async index(req, res) {
     // possibilita a paginacao
     const { page = 1 } = req.query; // se 'page' nao for informado o valor e 1
 
+    // cache
+    const cacheKey = `user:${req.userId}:appointments:${page}`;
+
+    const cached = await Cache.get(cacheKey);
+
+    if (cached) {
+      return res.json(cached);
+    }
+
     // seleciona todos
-    const appointment = await Appointment.findAll({
+    const appointments = await Appointment.findAll({
       // onde: user_id = req.userId nao cancelados
       where: { user_id: req.userId, canceled_at: null },
       // ordenar por dada
@@ -43,7 +54,11 @@ class AppointmentController {
         },
       ],
     });
-    return res.json(appointment);
+
+    // Cache
+    await Cache.set(cacheKey, appointments);
+
+    return res.json(appointments);
   }
 
   // cadastra agendamentos

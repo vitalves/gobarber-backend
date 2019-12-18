@@ -6,6 +6,8 @@ import Appointment from '../models/Appointment';
 
 import Notification from '../schemas/Notification';
 
+import Cache from '../../lib/Cache';
+
 class CreateAppointmentService {
   async run({ provider_id, user_id, date }) {
     // verifica se o usuario tenat agendar com ele mesmo
@@ -69,6 +71,9 @@ class CreateAppointmentService {
       // read: nao precisa por tem padrao de FALSE
     });
     // FIM NOTIFICAR AGENDAMENTO (Usando os Schemas do Mongoose/Mongo)
+
+    // invalidar cache:
+    await Cache.invalidatePrefix(`user:${user.id}:appointments`);
 
     return appointment;
   }
