@@ -5,6 +5,8 @@ import User from '../models/User';
 // importa o model de File para pegar o Avatar
 import File from '../models/File';
 
+import Cache from '../../lib/Cache';
+
 class UserController {
   async store(req, res) {
     // verifica se o usuario ja existe
@@ -23,6 +25,11 @@ class UserController {
 
     // RETORNANDO APENAS OS DADOS DESEJADOS:
     const { id, name, email, provider } = await User.create(req.body);
+
+    // Resetar o cache se o usuario cadastrado for um provider
+    if (provider) {
+      await Cache.invalidate('providers');
+    }
 
     return res.json({
       id,
