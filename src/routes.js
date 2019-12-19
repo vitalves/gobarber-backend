@@ -1,6 +1,10 @@
 import { Router } from 'express';
 // const { Router } = require("express");
 
+// segurança
+import Brute from 'express-brute';
+import BruteRedis from 'express-brute-redis';
+
 // para o apload
 import multer from 'multer';
 import multerConfig from './config/multer';
@@ -27,6 +31,14 @@ import validateAppointmentStore from './app/validators/AppointmentStore';
 // middleware
 import authMiddleware from './app/middlewares/auth';
 
+// configurações de segurança (Brute)
+const bruteStore = new BruteRedis({
+  host: process.env.REDIS_HOST,
+  port: process.env.REDIS_PORT,
+});
+
+const bruteForce = new Brute(bruteStore);
+
 const routes = new Router();
 const upload = multer(multerConfig);
 
@@ -43,7 +55,12 @@ routes.get('/', async (req, res) => {
 
 // VARIAVEIS:
 routes.post('/users', validateUserStore, UserController.store);
-routes.post('/sessions', validateSessionStore, SessionController.store);
+routes.post(
+  '/sessions',
+  bruteForce.prevent,
+  validateSessionStore,
+  SessionController.store
+);
 
 // usar middleware para evitar que essa rota seja acessada sem autenticacao
 /*
