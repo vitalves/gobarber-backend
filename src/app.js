@@ -8,6 +8,9 @@ import path from 'path';
 import cors from 'cors';
 // segurança:
 import helmet from 'helmet';
+import redis from 'redis';
+import RateLimit from 'express-rate-limit';
+import RateLimitRedis from 'rate-limit-redis';
 // tratar os erros retornados
 import Youch from 'youch';
 
@@ -63,6 +66,21 @@ class App {
       '/files',
       express.static(path.resolve(__dirname, '..', 'tmp', 'uploads'))
     );
+
+    if (process.env.NODE_ENV !== 'development') {
+      this.server.use(
+        new RateLimit({
+          store: new RateLimitRedis({
+            client: redis.createClient({
+              host: process.env.REDIS_HOST,
+              port: process.env.REDIS_PORT,
+            }),
+            windowMs: 1000 * 60 * 15, // intervalo de verificacao de requisicoes (ms)
+            max: 100, // maximos de requisicoes dentro do intervalo definido
+          }),
+        })
+      );
+    }
   }
 
   routes() {
