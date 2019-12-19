@@ -6,6 +6,8 @@ import express from 'express';
 import path from 'path';
 // restringir acessos a API:
 import cors from 'cors';
+// segurança:
+import helmet from 'helmet';
 // tratar os erros retornados
 import Youch from 'youch';
 
@@ -50,6 +52,9 @@ class App {
 
     // define endereços que podem acessar a API
     // this.server.use(cors({ origin: 'https://rocketseat.com.br' })); // em producao
+
+    this.server.use(helmet()); // adiciona configs de segurança nos headers da resposta
+
     this.server.use(cors()); // em desenvolvimento
 
     this.server.use(express.json());
